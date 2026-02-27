@@ -154,7 +154,13 @@ app.post('/api/register', async (req, res) => {
         const hashedPassword = await bcrypt.hash(password, salt);
         const nuevoDocente = await pool.query('INSERT INTO docentes (nombre, email, password) VALUES ($1, $2, $3) RETURNING id, nombre, email', [nombre, email, hashedPassword]);
         res.json(nuevoDocente.rows[0]);
-    } catch (err) { res.status(500).json({ error: 'Error server' }); }
+    } catch (err) {
+        if (err && err.code === '23505') {
+            return res.status(409).json({ error: 'El correo ya está registrado' });
+        }
+        console.error('Error en /api/register:', err.message);
+        res.status(500).json({ error: 'Error server' });
+    }
 });
 
 app.post('/api/login', async (req, res) => {
@@ -165,7 +171,10 @@ app.post('/api/login', async (req, res) => {
         const validPassword = await bcrypt.compare(password, usuario.rows[0].password);
         if (!validPassword) return res.status(400).json({ error: 'Contraseña incorrecta' });
         res.json({ id: usuario.rows[0].id, nombre: usuario.rows[0].nombre, email: usuario.rows[0].email });
-    } catch (err) { res.status(500).json({ error: 'Error login' }); }
+    } catch (err) {
+        console.error('Error en /api/login:', err.message);
+        res.status(500).json({ error: 'Error login' });
+    }
 });
 
 app.post('/api/actividad', async (req, res) => {
@@ -363,4 +372,16 @@ app.get('/api/exportar-excel', async (req, res) => {
             res.status(500).json({ error: 'Error al obtener datos para Excel' }); 
         }
     });
-    server.listen(4000, () => { console.log(`✅ Servidor OK en puerto 4000`); });
+const startServer = async () => {
+    try {
+        // Validamos la conexi�n al iniciar para evitar errores "500" gen�ricos en runtime.
+        await pool.query('SELECT 1');
+        server.listen(4000, () => { console.log(`✅ Servidor OK en puerto 4000`); });
+    } catch (err) {
+        console.error('❌ No se pudo conectar a PostgreSQL:', err);
+        process.exit(1);
+    }
+};
+
+startServer();
+
