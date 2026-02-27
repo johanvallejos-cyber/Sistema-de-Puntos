@@ -1,0 +1,59 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: #f8fafc;
+  --foreground: #0f172a;
+}
+
+body {
+  background-color: var(--background);
+  color: var(--foreground);
+  /* La fuente se carga desde layout.tsx, así que esto está bien */
+}
+
+/* --- CLASES DE UTILIDAD PERSONALIZADAS --- */
+
+/* Efecto Vidrio (Glassmorphism) */
+.glass {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+}
+
+/* --- ANIMACIONES PERSONALIZADAS --- */
+
+/* 1. Entrada con rebote (para modales y alertas) */
+@keyframes bounceIn {
+  0% { opacity: 0; transform: scale(0.3); }
+  50% { opacity: 1; transform: scale(1.05); }
+  70% { transform: scale(0.9); }
+  100% { transform: scale(1); }
+}
+.animate-bounce-in {
+  animation: bounceIn 0.5s cubic-bezier(0.215, 0.610, 0.355, 1.000) both;
+}
+
+/* 2. Campana oscilando (para notificaciones) */
+@keyframes swing {
+  20% { transform: rotate(15deg); }
+  40% { transform: rotate(-10deg); }
+  60% { transform: rotate(5deg); }
+  80% { transform: rotate(-5deg); }
+  100% { transform: rotate(0deg); }
+}
+.animate-swing {
+  animation: swing 2s infinite;
+  transform-origin: top center;
+}
+
+/* 3. Desvanecimiento suave (Fade In) */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.animate-fade-in {
+  animation: fadeIn 0.5s ease-out forwards;
+}
